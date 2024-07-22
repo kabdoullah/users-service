@@ -3,7 +3,7 @@ passlib
 pyjwt
 sqlalchemy
 fastapi-mail
+psycopg2-binary
 databases[postgresql]
-psycopg2
 pytest
 logfire
