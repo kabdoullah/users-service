@@ -1,0 +1,9 @@
+fastapi
+passlib
+pyjwt
+sqlalchemy
+fastapi-mail
+databases[postgresql]
+psycopg2
+pytest
+logfire
