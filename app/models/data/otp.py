@@ -1,9 +1,8 @@
-import string
 import uuid
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from app.configurations.database import Base
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean
+from app.configuration.database import Base
 from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from sqlalchemy.dialects.postgresql import UUID
 
 

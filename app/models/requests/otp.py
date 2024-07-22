@@ -1,8 +1,4 @@
-import re
-from datetime import datetime, date
-from typing import Union
-from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field
 
 class OTP(BaseModel):
     email: EmailStr

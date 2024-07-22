@@ -1,12 +1,8 @@
-import string
-import uuid
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from app.configurations.database import Base
-from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta, timezone
+from sqlalchemy import Column, String
+from app.configuration.database import Base
 from sqlalchemy.dialects.postgresql import UUID
 
-class Users(Base):
+class User(Base):
     _tablename_ = 'users'
 
     id = Column(UUID, primary_key=True, index=True)

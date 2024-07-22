@@ -1,11 +1,9 @@
-import re
-from datetime import datetime, date
 from typing import Union
-from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import Field
+from .user import UserBase
 
 
-class ProfessionalUser(UsersBase):
+class ProfessionalUser(UserBase):
     phone_2: Union[str, None] = Field(None, min_length=10, max_length=15)
     company: Union[str, None] = None
     country: Union[str, None] = None

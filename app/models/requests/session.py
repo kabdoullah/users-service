@@ -1,10 +1,9 @@
-import re
-from datetime import datetime, date
+from datetime import date
 from typing import Union
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel
 
-class Session(Base):
+class Session(BaseModel):
     id: UUID
     user_id : UUID
     created_at : Union[date, None] = None 

@@ -1,13 +1,9 @@
-import re
-from datetime import datetime, date
-from typing import Union
-from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from app.utils.password import validate_password_complexity
 
 
 
-class UsersBase(BaseModel):
+class UserBase(BaseModel):
     first_name: str = Field(..., min_length=3, max_length=50)
     last_name: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
