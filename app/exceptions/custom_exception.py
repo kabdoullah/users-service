@@ -92,3 +92,11 @@ class PhoneAlreadyUsedException(HTTPException):
     """
     def __init__(self):
         super().__init__(status_code=409, detail="Phone number already used")
+        
+class SessionNotFoundException(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=404, detail="Session not found")
+
+class UserNotFoundException(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=404, detail="User not found")

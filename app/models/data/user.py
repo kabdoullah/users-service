@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Boolean
 from app.configuration.database import Base
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -12,6 +12,7 @@ class User(Base):
     phone = Column(String)
     password = Column(String)
     type = Column(String, nullable=False)  # 'particular' or 'professional'
+    is_active = Column(Boolean, default=True)
 
     _mapper_args_ = {
         'polymorphic_identity': 'base_user',
