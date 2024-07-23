@@ -13,6 +13,8 @@ class Session(Base):
     user_id = Column(UUID, ForeignKey("users.id"), nullable=False) 
     created_at = Column(DateTime, default=None, nullable=True)
     expired_at = Column(DateTime, default=None, nullable=True)
-    connect = Column(Boolean, default=None, nullable=True)
+    token = Column(String, default=None, nullable=True)
 
     users = relationship("User", back_populates="otps")
+
+    
