@@ -16,3 +16,6 @@ class SessionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
+class SessionData(BaseModel):
+    user_id: UUID4
