@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from app.configuration.database import get_db
 from app.models.data.user import User
-from app.models.data.otp import OTP
 from app.models.requests.user import UserBase
 
 
@@ -40,11 +39,7 @@ class UserRepository:
         if not user:
             return None
 
-        otp_entry = self.db.query(OTP).filter(OTP.user_id == user.id, OTP.used == True, OTP.expires_at >= datetime.now(timezone.utc)).first()
-        
-        if not otp_entry:
-            return None
-
+ 
         user.password = new_password
         self.db.add(user)  
         self.db.commit()
@@ -54,5 +49,7 @@ class UserRepository:
     def update_password(self, user: User, new_password: str) -> User:
         user.password = new_password
         self.db.commit()
+        
+  
         
     

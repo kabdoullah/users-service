@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import FastAPI, Depends, Header, status, Request
+from app.api.login import router as login_router
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.configuration.config import AuthSettings, ServerSettings
@@ -24,67 +25,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(login_router, prefix="/api/v1")
+
 # Configure logfire
 logfire.configure(service_name='auth-microservice',)
 logfire.info('Auth Microservice Started')
 
 
-# Logfire metrics counter
-request_counter = logfire.metric_counter(
-    'request',
-    unit='1',
-    description='Number of requests received by auth microservice'
-)
 
-@app.middleware("http")
-async def logfire_middleware(request: Request, call_next):
-    request_counter.add(1)
-    with logfire.span('{method} {path}', path=request.url.path, method=request.method):
-        logfire.info("Request to access " + request.url.path)
-        try:
-            response = await call_next(request)
-            logfire.info("Successfully accessed {path}", path=request.url.path)
-        except Exception as e:
-            logfire.error("Request to {request} failed: {e}", request=request.url, ex=e)
-            response = JSONResponse(content={"success": False}, status_code=500)
-        return response
-    
-
-# Dependency Injection for configuration
-def build_config():
-    return AuthSettings()
-
-def fetch_config():
-    return ServerSettings()
-
-@app.get('/index', status_code=status.HTTP_200_OK)
-def index_auth(
-    config: AuthSettings = Depends(build_config),
-    fconfig: ServerSettings = Depends(fetch_config)
-):
-    return {
-        'project_name': config.APPLICATION,
-        'webmaster': config.WEBMASTER,
-        'created': config.CREATED,
-        'development_server': fconfig.PRODUCTION_SERVER,
-        'dev_port': fconfig.PROD_PORT
-    }
-    
-@app.get("/headers/verify", status_code=status.HTTP_200_OK)
-def verify_headers(
-    host: Optional[str] = Header(None),
-    accept: Optional[str] = Header(None),
-    user_agent: Optional[str] = Header(None),
-    accept_language: Optional[str] = Header(None),
-    accept_encoding: Optional[str] = Header(None)
-):
-    return {
-        "host": host,
-        "accept": accept,
-        "user_agent": user_agent,
-        "accept_language": accept_language,
-        "accept_encoding": accept_encoding
-    }
 
 # Register exception handlers
 app.add_exception_handler(InvalidCredentialsException, handle_invalid_credentials)

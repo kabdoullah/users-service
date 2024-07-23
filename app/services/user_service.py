@@ -4,7 +4,9 @@ from app.repository.user_repository import UserRepository
 from app.models.data.user import User
 from app.models.requests.user import UserBase
 from app.exceptions.custom_exception import UserNotFoundException, UserAlreadyExistsException
-from app.utils.auth import hash_password, verify_password
+from app.security.security import hash_password, verify_password
+
+
 
 class UserService:
     def __init__(self, user_repo: UserRepository = Depends()):
@@ -114,4 +116,22 @@ class UserService:
         """
         hashed_password = hash_password(new_password)
         self.user_repo.update_password(user, hashed_password)
+        return user
+
+    def authenticate_user(self, email: str, password: str) -> User | None:
+        """
+        Authentifie un utilisateur.
+        
+        :param email: Email de l'utilisateur
+        :param password: Mot de passe de l'utilisateur
+        :return: Utilisateur authentifié
+        :raises UserNotFoundException: Si l'utilisateur n'est pas trouvé
+        """
+        user = self.user_repo.get_user_by_email(email)
+        if not user:
+            return None
+
+        if not verify_password(plain_password=password, hashed_password=user.password):
+            return None
+
         return user

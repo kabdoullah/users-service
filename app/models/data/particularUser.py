@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from. user import User
 
 class ParticularUser(User):
-    _tablename_ = 'particular'
+    __tablename__ = 'particular'
 
     id = Column(UUID, ForeignKey('base_users.id'), primary_key=True)
     birth_day = Column(Date)

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID as UUIDType
 from sqlalchemy.orm import relationship
@@ -10,7 +10,7 @@ class Session(Base):
 
     id = Column(UUIDType(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     user_id = Column(UUIDType(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=True)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc), nullable=True)
     expired_at = Column(DateTime, default=None, nullable=True)
     token = Column(String, default=None, nullable=True)
 

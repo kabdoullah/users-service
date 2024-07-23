@@ -1,9 +1,11 @@
 from sqlalchemy import Column, String, Boolean
 from app.configuration.database import Base
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
 
 class User(Base):
-    _tablename_ = 'users'
+    __tablename__ = 'users'
 
     id = Column(UUID, primary_key=True, index=True)
     first_name = Column(String, index=True)
@@ -13,6 +15,8 @@ class User(Base):
     password = Column(String)
     type = Column(String, nullable=False)  # 'particular' or 'professional'
     is_active = Column(Boolean, default=True)
+    
+    sessions = relationship("Session", back_populates="user")
 
     _mapper_args_ = {
         'polymorphic_identity': 'base_user',

@@ -1,15 +1,20 @@
 import os
 from datetime import date
 from pathlib import Path
-from pydantic_settings import BaseSettings
-from pydantic import EmailStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from pydantic import EmailStr
 
 
 class AuthSettings(BaseSettings):
     APPLICATION: str = 'Auth Management System'
     WEBMASTER: str = 'bidigafadel@gmail.com'
     CREATED: date = date(2021, 11, 10)
+    
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
+
 
 class ServerSettings(BaseSettings):
     PRODUCTION_SERVER: str
@@ -17,19 +22,23 @@ class ServerSettings(BaseSettings):
     DEVELOPMENT_SERVER: str
     DEV_PORT: int
 
-    class Config:
-        env_file = Path(os.getcwd()) / 'configuration' / 'erp_settings.properties'
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
+
 
 class DBSettings(BaseSettings):
-    DB_HOST: str
-    DB_PORT: int
-    DB_NAME: str
-    DB_USER: str
-    DB_PASSWORD: str
-
-    class Config:
-        env_file = Path(os.getcwd()) / 'configuration' / 'db_settings.properties'
-
+    
+    DB_HOST: str 
+    DB_PORT: int 
+    DB_NAME: str 
+    DB_USER: str 
+    DB_PASSWORD: str 
+    DB_URL: str
+    
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
 
 
 class EmailSettings(BaseSettings):
@@ -40,17 +49,21 @@ class EmailSettings(BaseSettings):
     MAIL_SERVER: str
     MAIL_FROM_NAME: str
 
-    class Config:
-        env_file = Path(os.getcwd()) / 'configuration' / 'email_settings.properties'
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
+
 
 
 class RedisSettings(BaseSettings):
-    REDIS_HOST: str
-    REDIS_PORT: int
-    REDIS_DB: int
-    REDIS_PASSWORD: str
+    REDIS_HOST: str | None = None
+    REDIS_PORT: int | None = None
+    REDIS_DB: int | None = None
+    REDIS_PASSWORD: str | None = None
 
-    class Config:
-        env_file = Path(os.getcwd()) / 'configuration' / 'redis_settings.properties'
+    model_config = SettingsConfigDict(
+        env_file=".env", env_ignore_empty=True, extra="ignore"
+    )
+
 
 

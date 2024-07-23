@@ -6,7 +6,7 @@ class InvalidCredentialsException(HTTPException):
     Exception levée lorsqu'il y a une erreur d'authentification.
     """
     def __init__(self, headers: Optional[Dict[str, str]] = None):
-        super().__init__(status_code=401, detail="Invalid credentials", headers=headers)
+        super().__init__(status_code=400, detail="Incorrect email or password", headers=headers)
 
 class UserNotFoundException(HTTPException):
     """

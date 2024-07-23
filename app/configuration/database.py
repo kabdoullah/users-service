@@ -7,6 +7,7 @@ from redis import Redis
 db_settings = DBSettings()
 redis_settings = RedisSettings()
 
+
 DATABASE_URL = db_settings.DB_URL
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})

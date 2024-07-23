@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from .user import User
 
 class ProfessionalUser(User):
-    _tablename_ = 'professional'
+    __tablename__ = 'professional'
 
     id = Column(UUID, ForeignKey('base_users.id'), primary_key=True)
     phone_2 = Column(String, nullable=True)  # Numéro fixe
