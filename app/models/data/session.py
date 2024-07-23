@@ -1,7 +1,7 @@
 import string
 import uuid
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from app.configurations.database import Base
+from app.configuration.database import Base
 from sqlalchemy.orm import relationship
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.dialects.postgresql import UUID
