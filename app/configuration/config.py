@@ -44,3 +44,13 @@ class EmailSettings(BaseSettings):
         env_file = Path(os.getcwd()) / 'configuration' / 'email_settings.properties'
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str
+
+    class Config:
+        env_file = Path(os.getcwd()) / 'configuration' / 'redis_settings.properties'
+
+
