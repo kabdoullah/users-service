@@ -1,13 +1,11 @@
-import string
 import uuid
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from app.configuration.database import Base
 from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta, timezone
 from sqlalchemy.dialects.postgresql import UUID
 
 class Session(Base):
-    __tablename__ ='session'
+    __tablename__ ='sessions'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     user_id = Column(UUID, ForeignKey("users.id"), nullable=False) 
