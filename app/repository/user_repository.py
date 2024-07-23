@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from app.configurations.database import get_db
+from app.configuration.database import get_db
 from app.models.data.user import User
 from app.models.data.otp import OTP
-from app.models.request.user import UserBase
+from app.models.requests.user import UserBase
 
 
 class UserRepository:
