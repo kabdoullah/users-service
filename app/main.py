@@ -1,15 +1,15 @@
-from typing import Optional
-from fastapi import FastAPI, Depends, Header, status, Request
+from fastapi import FastAPI
 from app.api.login import router as login_router
-from fastapi.responses import JSONResponse
+from app.configuration.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
-from app.configuration.config import AuthSettings, ServerSettings
 from app.exceptions.custom_exception import (CustomBadGatewayException, EmailAlreadyUsedException, EmptyInputException, InactiveUserException, InvalidCredentialsException, InvalidPasswordException, InvalidTokenException, PhoneAlreadyUsedException, SameUsernamePasswordException, UserAlreadyExistsException, UserNotFoundException, UserNotValidException)
 from app.exceptions.exception_handler import (handle_custom_bad_gateway, handle_email_already_used, handle_empty_input, handle_inactive_user, handle_invalid_credentials, handle_invalid_password, handle_invalid_token, handle_phone_already_used, handle_same_username_password, handle_user_already_exists, handle_user_not_found, handle_user_not_valid)
 import logfire
 
 
 app = FastAPI(title="Bon coin User Authentication Microservice")
+
+Base.metadata.create_all(bind=engine)
 
 
 origins = [

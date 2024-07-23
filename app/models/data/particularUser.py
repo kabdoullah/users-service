@@ -1,13 +1,13 @@
 from sqlalchemy import Column, Date, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
-from. user import User
+from sqlalchemy.dialects.postgresql import UUID as UUIDType
+from . user import User
 
 class ParticularUser(User):
-    __tablename__ = 'particular'
+    __tablename__ = 'particular_users'
 
-    id = Column(UUID, ForeignKey('base_users.id'), primary_key=True)
+    id = Column(UUIDType(as_uuid=True), ForeignKey('users.id'), primary_key=True)
     birth_day = Column(Date)
 
-    _mapper_args_ = {
+    __mapper_args__ = {
         'polymorphic_identity': 'particular_user',
     }

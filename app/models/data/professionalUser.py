@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as UUIDType
 from .user import User
 
 class ProfessionalUser(User):
-    __tablename__ = 'professional'
+    __tablename__ = 'professional_users'
 
-    id = Column(UUID, ForeignKey('base_users.id'), primary_key=True)
+    id = Column(UUIDType(as_uuid=True), ForeignKey('users.id'), primary_key=True)
     phone_2 = Column(String, nullable=True)  # Numéro fixe
     company = Column(String)
     country = Column(String)
@@ -14,6 +14,6 @@ class ProfessionalUser(User):
     sub_category = Column(String, nullable=True)
     website = Column(String, nullable=True)
 
-    _mapper_args_ = {
+    __mapper_args__ = {
         'polymorphic_identity': 'professional_user',
     }
