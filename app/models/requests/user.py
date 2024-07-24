@@ -20,5 +20,5 @@ class UserBase(BaseModel):
             )
         return value
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

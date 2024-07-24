@@ -5,5 +5,5 @@ class OTP(BaseModel):
     otp_code: str = Field(..., min_length=6, max_length=6)
 
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

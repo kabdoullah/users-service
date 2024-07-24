@@ -1,6 +1,6 @@
+from pydantic import UUID4
 from sqlalchemy.orm import Session as SQLAlchemySession
-from fastapi import Depends, HTTPException, status
-from uuid import UUID
+from fastapi import Depends
 from datetime import datetime, timezone
 from app.models.data.session import Session as SessionModel
 from app.models.requests.session import SessionCreate
@@ -33,20 +33,16 @@ class SessionRepository:
         self.db.refresh(db_session)
         return db_session
 
-    def get_session(self, session_id: UUID):
+    def get_session(self, session_id: UUID4):
         """
         Récupère une session par son identifiant.
         
         :param session_id: Identifiant de la session
         :return: La session trouvée
-        :raises HTTPException: Si la session n'est pas trouvée
         """
-        db_session = self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
-        if not db_session:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
-        return db_session
+        return self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
 
-    def delete_session(self, session_id: UUID):
+    def delete_session(self, session_id: UUID4):
         """
         Supprime une session par son identifiant.
         
@@ -60,7 +56,7 @@ class SessionRepository:
             return True
         return False
 
-    def get_sessions_by_user(self, user_id: UUID):
+    def get_sessions_by_user(self, user_id: UUID4):
         """
         Récupère toutes les sessions pour un utilisateur donné.
         

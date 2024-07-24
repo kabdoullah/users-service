@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
-from datetime import datetime, timedelta, timezone
-from fastapi import Depends, HTTPException, status
+from datetime import datetime, timezone
+from fastapi import Depends
 from app.models.requests.session import SessionCreate
 from app.models.data.session import Session as SessionModel
 from app.repository.session_repository import SessionRepository

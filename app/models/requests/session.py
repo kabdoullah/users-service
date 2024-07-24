@@ -6,16 +6,13 @@ class SessionCreate(BaseModel):
     user_id: UUID4
     token: str
     expired_at: Optional[datetime] = None
-    created_at: Optional[datetime] = None
 
-class SessionResponse(BaseModel):
+class LoginResponse(BaseModel):
     acces_token: str
     refresh_token: str
     token_type: str = "bearer"
     
 
-    class Config:
-        from_attributes = True
         
 class SessionData(BaseModel):
     user_id: UUID4
