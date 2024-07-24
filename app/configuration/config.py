@@ -10,6 +10,7 @@ class AuthSettings(BaseSettings):
     APPLICATION: str = 'Auth Management System'
     WEBMASTER: str = 'bidigafadel@gmail.com'
     CREATED: date = date(2021, 11, 10)
+    MAX_ATTEMPTS: int
     
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"

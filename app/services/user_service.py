@@ -1,12 +1,15 @@
 from typing import Optional
 from fastapi import Depends, HTTPException, status
+from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
 from app.models.requests.user import UserBase
 from app.exceptions.custom_exception import UserNotFoundException, UserAlreadyExistsException
 from app.security.security import hash_password, verify_password
 
+auth_settings = AuthSettings()
 
+MAX_ATTEMPTS = auth_settings.MAX_ATTEMPTS
 
 class UserService:
     def __init__(self, user_repo: UserRepository = Depends()):
@@ -118,20 +121,29 @@ class UserService:
         self.user_repo.update_password(user, hashed_password)
         return user
 
-    def authenticate_user(self, email: str, password: str) -> User | None:
+    def authenticate_user(self, email: str, password: str) -> dict:
         """
         Authentifie un utilisateur.
         
         :param email: Email de l'utilisateur
         :param password: Mot de passe de l'utilisateur
-        :return: Utilisateur authentifié
-        :raises UserNotFoundException: Si l'utilisateur n'est pas trouvé
+        :return: Dictionnaire contenant l'utilisateur authentifié et les tentatives restantes
+        :raises HTTPException: Si les informations d'authentification sont incorrectes ou si le compte est verrouillé
         """
         user = self.user_repo.get_user_by_email(email)
         if not user:
-            return None
+            return {"message": "Invalid login or password", "attempts_left": MAX_ATTEMPTS}
 
-        if not verify_password(plain_password=password, hashed_password=user.password):
-            return None
+        if not verify_password(password, user.password):
+            user.login_attempts += 1
+            self.user_repo.db.commit()
+            attempts_left = MAX_ATTEMPTS - user.login_attempts
+            if attempts_left <= 0:
+                user.is_active = False
+                self.user_repo.db.commit()
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account locked. Please contact support.")
+            return {"message": "Invalid login or password", "attempts_left": attempts_left}
 
-        return user
+        user.login_attempts = 0
+        self.user_repo.db.commit()
+        return {"user": user, "attempts_left": MAX_ATTEMPTS}
