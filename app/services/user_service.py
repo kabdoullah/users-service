@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
@@ -47,7 +48,7 @@ class UserService:
         user_data.password = hashed_password
         return self.user_repo.create_professional(user_data)
 
-    def update_user(self, user_id: int, user_data: UserParticular) -> User:
+    def update_user(self, user_id: UUID4, user_data: UserParticular) -> User:
         """
         Met à jour un utilisateur existant.
         
@@ -66,7 +67,7 @@ class UserService:
         self.user_repo.update_user(user)
         return user
 
-    def delete_user(self, user_id: int) -> bool:
+    def delete_user(self, user_id: UUID4) -> bool:
         """
         Supprime un utilisateur.
         
@@ -98,7 +99,7 @@ class UserService:
         """
         return self.user_repo.get_user_by_email(email)
 
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user_by_id(self, user_id: UUID4) -> Optional[User]:
         """
         Récupère un utilisateur par son identifiant.
         
@@ -148,10 +149,12 @@ class UserService:
         """
         user = self.user_repo.get_user_by_email(email)
         if not user:
-            return {"message": "User not found", "attempts_left": MAX_ATTEMPTS} 
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found") 
         
         if user.login_attempts >= MAX_ATTEMPTS:
-            raise {"message": "Account locked. Please contact support."}
+            user.login_attempts = 0
+            self.user_repo.db.commit()
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account locked. Please contact support.")
         
         if not verify_password(password, user.password):
             user.login_attempts += 1

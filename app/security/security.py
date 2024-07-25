@@ -32,7 +32,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], authse
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: UUID = payload.get("sub")
+        user_id: UUID4 = payload.get("sub")
         token_data = SessionData(user_id=user_id)
     except InvalidTokenError:
         raise InvalidTokenException()
