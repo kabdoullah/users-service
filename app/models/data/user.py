@@ -11,8 +11,8 @@ class User(Base):
     first_name = Column(String, index=True)
     last_name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    phone = Column(String, unique=True, index=True)
-    password = Column(String, nullable=False)
+    phone = Column(String)
+    password = Column(String)
     type = Column(String, nullable=False)  # 'particular' or 'professional'
     is_active = Column(Boolean, default=True)
     login_attempts = Column(Integer, default=0)

@@ -30,5 +30,4 @@ async def send_otp_email(email: str, otp: str, background_tasks: BackgroundTasks
         body=html,
         subtype=MessageType.html
     )
-    
     background_tasks.add_task(fm.send_message, message)

@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
-from app.models.requests.user import UserBase
+from app.models.requests.user import UserParticular, UserProfessional
 from app.exceptions.custom_exception import UserNotFoundException, UserAlreadyExistsException
 from app.security.security import hash_password, verify_password
 
@@ -15,7 +15,7 @@ class UserService:
     def __init__(self, user_repo: UserRepository = Depends()):
         self.user_repo = user_repo
 
-    def create_user(self, user_data: UserBase) -> User:
+    def create_particular(self, user_data: UserParticular) -> User:
         """
         Crée un nouvel utilisateur.
         
@@ -29,9 +29,25 @@ class UserService:
 
         hashed_password = hash_password(user_data.password)
         user_data.password = hashed_password
-        return self.user_repo.create_user(user_data)
+        return self.user_repo.create_particular(user_data)
+    
+    def create_professional(self, user_data: UserProfessional) -> User:
+        """
+        Crée un nouvel utilisateur.
+        
+        :param user_data: Données de l'utilisateur
+        :return: Utilisateur créé
+        :raises UserAlreadyExistsException: Si un utilisateur avec le même email existe déjà
+        """
+        existing_user = self.user_repo.get_user_by_email(user_data.email)
+        if existing_user:
+            raise UserAlreadyExistsException()
 
-    def update_user(self, user_id: int, user_data: UserBase) -> User:
+        hashed_password = hash_password(user_data.password)
+        user_data.password = hashed_password
+        return self.user_repo.create_professional(user_data)
+
+    def update_user(self, user_id: int, user_data: UserParticular) -> User:
         """
         Met à jour un utilisateur existant.
         

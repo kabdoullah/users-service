@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from app.configuration.database import get_db
 from app.models.data.user import User
-from app.models.requests.user import UserBase
+from app.models.data.particular_user import ParticularUser
+from app.models.data.professional_user import ProfessionalUser
+from app.models.requests.user import UserParticular, UserProfessional
 
 
 class UserRepository:
@@ -11,14 +13,21 @@ class UserRepository:
         self.db = db
  
  
-    def create_user(self, user: UserBase):
-        db_user = User(**user.dict())
+    def create_particular(self, user: UserParticular):
+        db_user = ParticularUser(**user.model_dump())
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
         return db_user
     
-    def update_user(self, user: UserBase):
+    def create_professional(self, user: UserProfessional):
+        db_user = ProfessionalUser(**user.model_dump())
+        self.db.add(db_user)
+        self.db.commit()
+        self.db.refresh(db_user)
+        return db_user
+    
+    def update_user(self, user:  UserParticular | UserProfessional):
         pass
 
     def delete_user(self, user_id: int):

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Date, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID as UUIDType
-from . user import User
+from .user import User
 
 class ParticularUser(User):
     __tablename__ = 'particular_users'
