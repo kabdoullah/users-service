@@ -27,7 +27,7 @@ class UserParticular(BaseModel):
     birth_day : date
     phone: str = Field(..., min_length=10, max_length=15)
     email: EmailStr
-    password: str = Field(..., min_length=8, max_length=50)
+    password: str = Field(..., min_length=4, max_length=50)
     
     
     # @field_validator('password')
@@ -42,8 +42,9 @@ class UserParticular(BaseModel):
 class UserProfessional(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=50)
     last_name: str = Field(..., min_length=2, max_length=50)
+    email: EmailStr
     number_fix : str = Field(..., min_length=2, max_length=50)
-    password: str = Field(..., min_length=8, max_length=50)
+    password: str = Field(..., min_length=4, max_length=50)
     company : str = Field(...,min_length=3,max_length=50)
     country : str = Field(...,min_length=3,max_length=50)
     professional_category : str = Field(...,min_length=3,max_length=50)
