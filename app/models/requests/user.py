@@ -1,7 +1,10 @@
 from datetime import date
 from pydantic import UUID4, BaseModel, EmailStr, Field, field_validator
-from app.utils.password import validate_password_complexity
+import pycountry
 
+
+# Générer la liste des pays
+COUNTRIES = [country.name for country in pycountry.countries]
         
 class PasswordResetRequest(BaseModel):
     email: EmailStr
@@ -12,14 +15,6 @@ class PasswordResetConfirm(BaseModel):
     new_password: str
     otp: str
 
-    # @field_validator('new_password')
-    # def password_new_password(cls, value: str) -> str:
-    #     if not validate_password_complexity(value):
-    #         raise ValueError(
-    #             'Password must be at least 8 characters long, include an uppercase letter, '
-    #             'a lowercase letter, a digit, and a special character.'
-    #         )
-    #     return value
 
 class UserParticular(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=50)
@@ -29,15 +24,7 @@ class UserParticular(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=4, max_length=50)
     
-    
-    # @field_validator('password')
-    # def password_password(cls, value: str) -> str:
-    #     if not validate_password_complexity(value):
-    #         raise ValueError(
-    #             'Password must be at least 8 characters long, include an uppercase letter, '
-    #             'a lowercase letter, a digit, and a special character.'
-    #         )
-    #     return value
+
 
 class UserProfessional(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=50)
@@ -50,16 +37,14 @@ class UserProfessional(BaseModel):
     professional_category : str = Field(...,min_length=3,max_length=50)
     sub_category : str = Field(...,min_length=3,max_length=50)
     website : str = Field(...,min_length=3,max_length=50)
+
+    @field_validator('country')
+    def validate_country(cls, value: str) -> str:
+        if value not in COUNTRIES:
+            raise ValueError('Invalid country')
+        return value
     
-    
-    # @field_validator('password')
-    # def password_password(cls, value: str) -> str:
-    #     if not validate_password_complexity(value):
-    #         raise ValueError(
-    #             'Password must be at least 8 characters long, include an uppercase letter, '
-    #             'a lowercase letter, a digit, and a special character.'
-    #         )
-    #     return value
+
 
 class UserResponse(BaseModel):
     id: UUID4
