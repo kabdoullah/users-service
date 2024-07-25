@@ -12,7 +12,7 @@ class UserRepository:
  
  
     def create_user(self, user: UserBase):
-        db_user = User(**user.dict())
+        db_user = User(**user.model_dump())
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)

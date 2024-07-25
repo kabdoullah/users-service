@@ -1,10 +1,11 @@
 from typing import Union
-from pydantic import Field
+from pydantic import UUID4, Field
 from .user import UserBase
 
 
 class ProfessionalUser(UserBase):
-    phone_2: Union[str, None] = Field(None, min_length=10, max_length=15)
+    id: UUID4
+    number_fix : str = Field(..., min_length=10, max_length=50)
     company: Union[str, None] = None
     country: Union[str, None] = None
     company_type: Union[str, None] = None

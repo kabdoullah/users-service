@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.api.login import router as login_router
+from app.api.user import router as user_router
 from app.configuration.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions.custom_exception import (CustomBadGatewayException, EmailAlreadyUsedException, EmptyInputException, InactiveUserException, InvalidCredentialsException, InvalidPasswordException, InvalidTokenException, PhoneAlreadyUsedException, SameUsernamePasswordException, UserAlreadyExistsException, UserNotFoundException, UserNotValidException)
@@ -26,7 +27,7 @@ app.add_middleware(
 )
 
 app.include_router(login_router, prefix="/api/v1")
-
+app.include_router(user_router,prefix="/api/v1")
 # Configure logfire
 logfire.configure(service_name='auth-microservice',)
 logfire.info('Auth Microservice Started')

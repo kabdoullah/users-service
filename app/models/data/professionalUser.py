@@ -6,7 +6,7 @@ class ProfessionalUser(User):
     __tablename__ = 'professional_users'
 
     id = Column(UUIDType(as_uuid=True), ForeignKey('users.id'), primary_key=True)
-    phone_2 = Column(String, nullable=True)  # Numéro fixe
+    number_fix = Column(String, nullable=True)  # Numéro fixe
     company = Column(String)
     country = Column(String)
     company_type = Column(String)

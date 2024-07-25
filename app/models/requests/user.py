@@ -1,15 +1,19 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+
+
+from datetime import date
+from pydantic import UUID4, BaseModel, EmailStr, Field, field_validator
 from app.utils.password import validate_password_complexity
 
 
 
 class UserBase(BaseModel):
-    first_name: str = Field(..., min_length=3, max_length=50)
-    last_name: str = Field(..., min_length=3, max_length=50)
+    id: UUID4
     email: EmailStr
-    phone: str = Field(..., min_length=10, max_length=15)
+    first_name: str = Field(..., min_length=2, max_length=50)
+    last_name: str = Field(..., min_length=2, max_length=50)
     password: str = Field(..., min_length=8, max_length=50)
-    type: str = Field(..., min_length=8, max_length=50)
+    type: str = Field(..., min_length=3, max_length=50)
+    
 
     @field_validator('password')
     def password_password(cls, value: str) -> str:
@@ -22,3 +26,18 @@ class UserBase(BaseModel):
 
     class Config:
         from_attributes = True
+
+class UserParticular(UserBase):
+    id: UUID4
+    birth_day : date
+    phone: str = Field(..., min_length=10, max_length=15)
+
+class UserProfessional(UserBase):
+    id: UUID4
+    number_fix : str = Field(..., min_length=2, max_length=50)
+    company : str = Field(...,min_length=3,max_length=50)
+    country : str = Field(...,min_length=3,max_length=50)
+    company_type : str = Field(...,min_length=3,max_length=50)
+    professional_category : str = Field(...,min_length=3,max_length=50)
+    sub_category : str = Field(...,min_length=3,max_length=50)
+    website : str = Field(...,min_length=3,max_length=50)
