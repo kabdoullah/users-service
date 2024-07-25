@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
-from app.models.requests.user import UserBase
+from app.models.requests.user import UserParticular, UserProfessional
 from app.exceptions.custom_exception import UserNotFoundException, UserAlreadyExistsException
 from app.security.security import hash_password, verify_password
 
@@ -15,7 +15,7 @@ class UserService:
     def __init__(self, user_repo: UserRepository = Depends()):
         self.user_repo = user_repo
 
-    def create_user(self, user_data: UserBase) -> User:
+    def create_particular(self, user_data: UserParticular) -> User:
         """
         Crée un nouvel utilisateur.
         
@@ -29,9 +29,25 @@ class UserService:
 
         hashed_password = hash_password(user_data.password)
         user_data.password = hashed_password
-        return self.user_repo.create_user(user_data)
+        return self.user_repo.create_particular(user_data)
+    
+    def create_professional(self, user_data: UserProfessional) -> User:
+        """
+        Crée un nouvel utilisateur.
+        
+        :param user_data: Données de l'utilisateur
+        :return: Utilisateur créé
+        :raises UserAlreadyExistsException: Si un utilisateur avec le même email existe déjà
+        """
+        existing_user = self.user_repo.get_user_by_email(user_data.email)
+        if existing_user:
+            raise UserAlreadyExistsException()
 
-    def update_user(self, user_id: int, user_data: UserBase) -> User:
+        hashed_password = hash_password(user_data.password)
+        user_data.password = hashed_password
+        return self.user_repo.create_professional(user_data)
+
+    def update_user(self, user_id: int, user_data: UserParticular) -> User:
         """
         Met à jour un utilisateur existant.
         
@@ -127,23 +143,26 @@ class UserService:
         
         :param email: Email de l'utilisateur
         :param password: Mot de passe de l'utilisateur
-        :return: Dictionnaire contenant l'utilisateur authentifié et les tentatives restantes
+        :return: l'utilisateur authentifié et les tentatives restantes
         :raises HTTPException: Si les informations d'authentification sont incorrectes ou si le compte est verrouillé
         """
         user = self.user_repo.get_user_by_email(email)
         if not user:
-            return {"message": "Invalid login or password", "attempts_left": MAX_ATTEMPTS}
-
+            return {"message": "User not found", "attempts_left": MAX_ATTEMPTS} 
+        
+        if user.login_attempts >= MAX_ATTEMPTS:
+            raise {"message": "Account locked. Please contact support."}
+        
         if not verify_password(password, user.password):
             user.login_attempts += 1
             self.user_repo.db.commit()
             attempts_left = MAX_ATTEMPTS - user.login_attempts
             if attempts_left <= 0:
-                user.is_active = False
-                self.user_repo.db.commit()
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account locked. Please contact support.")
             return {"message": "Invalid login or password", "attempts_left": attempts_left}
 
         user.login_attempts = 0
         self.user_repo.db.commit()
         return {"user": user, "attempts_left": MAX_ATTEMPTS}
+    
+    

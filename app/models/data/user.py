@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, Integer
+from sqlalchemy import Column, DateTime, String, Boolean, Integer
 from app.configuration.database import Base
 from sqlalchemy.dialects.postgresql import UUID as UUIDType
 from sqlalchemy.orm import relationship
@@ -11,11 +11,12 @@ class User(Base):
     first_name = Column(String, index=True)
     last_name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    phone = Column(String, unique=True, index=True)
-    password = Column(String, nullable=False)
+    phone = Column(String)
+    password = Column(String)
     type = Column(String, nullable=False)  # 'particular' or 'professional'
     is_active = Column(Boolean, default=True)
     login_attempts = Column(Integer, default=0)
+    last_login_attempt = Column(DateTime, default=None)
 
     sessions = relationship("Session", back_populates="user")
 

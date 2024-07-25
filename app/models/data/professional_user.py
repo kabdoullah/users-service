@@ -9,7 +9,6 @@ class ProfessionalUser(User):
     number_fix = Column(String, nullable=True)  # Numéro fixe
     company = Column(String)
     country = Column(String)
-    company_type = Column(String)
     professional_category = Column(String)
     sub_category = Column(String, nullable=True)
     website = Column(String, nullable=True)

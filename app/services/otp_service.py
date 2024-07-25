@@ -1,6 +1,6 @@
-from datetime import timedelta
-from uuid import UUID
+from datetime import datetime, timedelta
 from fastapi import Depends
+from pydantic import UUID4
 from app.repository.otp_repository import OTPRepository
 from app.exceptions.custom_exception import InvalidOTPException, UserNotFoundException
 from app.repository.user_repository import UserRepository
@@ -16,7 +16,7 @@ class OTPService:
         self.otp_repo = otp_repo
         self.user_repo = user_repo
 
-    def generate_and_store_otp(self, user_id: UUID, otp: str, expiry_time: timedelta):
+    def store_otp(self, user_id: UUID4, otp: str, expiry_time: datetime):
         """
         Génère et stocke un OTP pour un utilisateur spécifique.
 
@@ -30,7 +30,7 @@ class OTPService:
         
         self.otp_repo.store_otp(user_id, otp, expiry_time)
 
-    def validate_otp(self, user_id: UUID, otp: str) -> bool:
+    def validate_otp(self, user_id: UUID4, otp: str) -> bool:
         """
         Valide un OTP pour un utilisateur spécifique.
 

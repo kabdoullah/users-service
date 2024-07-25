@@ -1,25 +1,53 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
-from app.models.requests.user import UserParticular, UserProfessional
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from app.exceptions.custom_exception import EmailAlreadyUsedException, UserNotFoundException
+from app.models.requests.otp import OTPVerify
+from app.models.requests.user import UserParticular, UserProfessional, UserResponse
+from app.security.security import generate_otp
+from app.services.otp_service import OTPService
 from app.services.user_service import UserService
+from app.utils.email import send_otp_email
 
 router = APIRouter()
 
-@router.post("/register_users/", response_model=UserParticular)
-async def register_user(user_data: UserParticular, userservice: UserService = Depends(UserService)):
+@router.post("/register/particular", response_model=UserResponse)
+async def register_user(user_data: UserParticular, background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    # +
-    # await send_otp_email(new_user.email, otp_code, background_tasks)
+        raise EmailAlreadyUsedException()
+    
+    otp, expiry_time = generate_otp()
+    new_user = userservice.create_particular(user_data)
+    
+    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
+    await send_otp_email(new_user.email, otp, background_tasks)
+    
+    return new_user
 
-    # return new_user
 
-@router.post("/register_professionnel/", response_model=UserProfessional)
-async def register_professionel(user_data: UserProfessional, userservice: UserService = Depends(UserService)):
+@router.post("/register/professionnal", response_model=UserResponse)
+async def register_professionel(user_data: UserProfessional,  background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise EmailAlreadyUsedException()
+    
+    otp, expiry_time = generate_otp()
+    print("otp", otp)
+    
+    new_user = userservice.create_professional(user_data)
+    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
+    await send_otp_email(new_user.email, otp, background_tasks)
+    
+    return new_user
+
+@router.post("/verify-otp")
+def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
+    db_user = userservice.get_user_by_email(data.email)
+    if not db_user:
+        raise UserNotFoundException()
+    if not otpservice.validate_otp(user_id=db_user.id,otp=data.otp_code):
+        raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
+    return {"message": "OTP verified"}
 
 # @router.get("/users/", response_model=List[User])
 # def get_all_users(service: UserService = Depends()):

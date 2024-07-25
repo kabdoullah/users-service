@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import UUID
 from fastapi import Depends
 from redis import Redis
@@ -14,7 +14,7 @@ class OTPRepository:
         """
         self.redis = redis
 
-    def store_otp(self, user_id: UUID, otp: str, expiry_time: timedelta):
+    def store_otp(self, user_id: UUID, otp: str, expiry_time: datetime):
         """
         Stocke un OTP (One Time Password) pour un utilisateur spécifique dans Redis avec un temps d'expiration.
 
@@ -22,7 +22,8 @@ class OTPRepository:
         :param otp: Le code OTP à stocker.
         :param expiry_time: La durée après laquelle l'OTP expirera.
         """
-        self.redis.setex(str(user_id), expiry_time, otp)
+        current_time = int(expiry_time.timestamp())
+        self.redis.setex(str(user_id), current_time, otp)
 
     def verify_otp(self, user_id: UUID, otp: str) -> bool:
         """
