@@ -1,6 +1,8 @@
-from typing import List
+from typing import Annotated, List
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from app.dependencies.auth import get_current_active_user
 from app.exceptions.custom_exception import EmailAlreadyUsedException, UserNotFoundException
+from app.models.data.user import User
 from app.models.requests.otp import OTPVerify
 from app.models.requests.user import UserParticular, UserProfessional, UserResponse
 from app.security.security import generate_otp
@@ -48,6 +50,11 @@ def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPServic
     if not otpservice.validate_otp(user_id=db_user.id,otp=data.otp_code):
         raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
     return {"message": "OTP verified"}
+
+@router.get("/me", response_model=UserResponse)
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]):
+    return current_user
 
 # @router.get("/users/", response_model=List[User])
 # def get_all_users(service: UserService = Depends()):

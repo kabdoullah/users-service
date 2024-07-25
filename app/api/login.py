@@ -1,25 +1,26 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from typing import Annotated
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from jwt import InvalidTokenError
+from app.configuration.config import AuthSettings
 from app.exceptions.custom_exception import InvalidTokenException, UserNotFoundException
 from app.models.requests.user import PasswordResetConfirm, PasswordResetRequest
-from app.security.security import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_MINUTES, create_access_token, create_refresh_token, decode_access_token, generate_otp, hash_password
+from app.security.security import create_access_token, create_refresh_token, decode_access_token, generate_otp
 from app.services.otp_service import OTPService
 from app.services.user_service import UserService
 from app.services.session_service import SessionService
 from app.models.requests.session import LoginErrorResponse, LoginSuccessResponse, SessionCreate, Token
 from app.utils.email import send_otp_email
 
-
+auth_settings = AuthSettings()
 
 router = APIRouter()
 
 @router.post("/login")
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  user_service: UserService = Depends(UserService), session_service: SessionService = Depends(SessionService)):
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=auth_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=auth_settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     
     try:
         result = user_service.authenticate_user(email=form_data.username, password=form_data.password)
@@ -56,7 +57,7 @@ def refresh_token(refresh_token: str, userservice: UserService = Depends(UserSer
     if not user:
         raise UserNotFoundException()
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=auth_settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": str(user.id)}, expires_delta=access_token_expires)
     session_service.create_session(session_data=SessionCreate(user_id=user.id, token=access_token, expires_at=access_token_expires))
 

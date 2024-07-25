@@ -1,6 +1,7 @@
 import os
 from datetime import date
 from pathlib import Path
+import secrets
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from pydantic import EmailStr
@@ -10,7 +11,10 @@ class AuthSettings(BaseSettings):
     APPLICATION: str = 'Auth Management System'
     WEBMASTER: str = 'bidigafadel@gmail.com'
     CREATED: date = date(2021, 11, 10)
-    MAX_ATTEMPTS: int
+    MAX_ATTEMPTS: int = 3
+    SECRET_KEY: str = secrets.token_urlsafe(32)
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 1440
     
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
