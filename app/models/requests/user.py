@@ -1,7 +1,11 @@
 from datetime import date
 from pydantic import UUID4, BaseModel, EmailStr, Field, field_validator
 from app.utils.password import validate_password_complexity
+import pycountry
 
+
+# Générer la liste des pays
+COUNTRIES = [country.name for country in pycountry.countries]
         
 class PasswordResetRequest(BaseModel):
     email: EmailStr
@@ -49,6 +53,12 @@ class UserProfessional(BaseModel):
     professional_category : str = Field(...,min_length=3,max_length=50)
     sub_category : str = Field(...,min_length=3,max_length=50)
     website : str = Field(...,min_length=3,max_length=50)
+
+    @field_validator('country')
+    def validate_country(cls, value: str) -> str:
+        if value not in COUNTRIES:
+            raise ValueError('Invalid country')
+        return value
     
     
     # @field_validator('password')

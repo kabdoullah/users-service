@@ -7,8 +7,16 @@ from app.security.security import generate_otp
 from app.services.otp_service import OTPService
 from app.services.user_service import UserService
 from app.utils.email import send_otp_email
+import pycountry
 
 router = APIRouter()
+
+# Générer la liste des pays
+COUNTRIES = [country.name for country in pycountry.countries]
+
+@router.get("/countries", response_model=List[str])
+def get_countries():
+    return COUNTRIES
 
 @router.post("/register/particular", response_model=UserResponse)
 async def register_user(user_data: UserParticular, background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
