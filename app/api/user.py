@@ -7,7 +7,7 @@ router = APIRouter()
 
 @router.post("/register_users/", response_model=UserParticular)
 async def register_user(user_data: UserParticular, userservice: UserService = Depends(UserService)):
-    db_user = UserService.get_user_by_email(user_data.email)
+    db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     # +
@@ -17,7 +17,7 @@ async def register_user(user_data: UserParticular, userservice: UserService = De
 
 @router.post("/register_professionnel/", response_model=UserProfessional)
 async def register_professionel(user_data: UserProfessional, userservice: UserService = Depends(UserService)):
-    db_user = UserService.get_user_by_email(user_data.email)
+    db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
