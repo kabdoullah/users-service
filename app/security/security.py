@@ -1,3 +1,5 @@
+import random
+import string
 import jwt
 from uuid import UUID
 from datetime import datetime, timedelta, timezone
@@ -71,11 +73,11 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
 
     return encoded_jwt
 
-def decode_access_token(token: str):
+def decode_access_token(token: str) -> SessionData:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: UUID4 = payload.get("sub")
-        SessionData(user_id=user_id)
+        return SessionData(user_id=user_id)
     except InvalidTokenError:
         raise InvalidTokenException()
 
@@ -86,3 +88,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
+
+def generate_otp():
+    otp_code = ''.join(random.choices(string.digits, k=6))
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=10)
+    return otp_code, expires_at

@@ -16,7 +16,7 @@ class OTPService:
         self.otp_repo = otp_repo
         self.user_repo = user_repo
 
-    def generate_and_store_otp(self, user_id: UUID, otp: str, expiry_time: timedelta):
+    def store_otp(self, user_id: UUID, otp: str, expiry_time: timedelta):
         """
         Génère et stocke un OTP pour un utilisateur spécifique.
 

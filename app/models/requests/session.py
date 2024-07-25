@@ -14,7 +14,7 @@ class LoginSuccessResponse(BaseModel):
     refresh_token: Optional[str] = None
     attempts_left: int
     
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 class LoginErrorResponse(BaseModel):
@@ -25,3 +25,9 @@ class LoginErrorResponse(BaseModel):
         
 class SessionData(BaseModel):
     user_id: UUID4
+    
+    
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
