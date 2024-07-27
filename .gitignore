@@ -4,3 +4,4 @@ venv/
 *.pyc
 *.db
 .pytest_cache/
+.vercel
