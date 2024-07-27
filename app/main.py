@@ -13,14 +13,9 @@ app = FastAPI(title="Bon coin User Authentication Microservice")
 Base.metadata.create_all(bind=engine)
 
 
-origins = [
-    "http://localhost",
-    "http://localhost:4200",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,7 +24,7 @@ app.add_middleware(
 app.include_router(login_router, prefix="/api/v1")
 app.include_router(user_router,prefix="/api/v1")
 # Configure logfire
-logfire.configure(service_name='auth-microservice',)
+logfire.configure(send_to_logfire='if-token-present')
 logfire.info('Auth Microservice Started')
 
 
