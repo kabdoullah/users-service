@@ -1,11 +1,12 @@
 from typing import Optional
 from fastapi import Depends, HTTPException, status
+import logfire
 from pydantic import UUID4
 from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
 from app.models.requests.user import UserParticular, UserProfessional
-from app.exceptions.custom_exception import UserNotFoundException, UserAlreadyExistsException
+from app.exceptions.custom_exception import InvalidCredentialsException, UserNotFoundException, UserAlreadyExistsException
 from app.security.security import hash_password, verify_password
 
 auth_settings = AuthSettings()
@@ -138,34 +139,41 @@ class UserService:
         self.user_repo.update_password(user, hashed_password)
         return user
 
-    def authenticate_user(self, email: str, password: str) -> dict:
+    def authenticate_user(self, email: str, password: str) -> User:
         """
-        Authentifie un utilisateur.
+        Authentifie un utilisateur en vérifiant son email et son mot de passe.
         
         :param email: Email de l'utilisateur
         :param password: Mot de passe de l'utilisateur
-        :return: l'utilisateur authentifié et les tentatives restantes
+        :return: L'utilisateur authentifié
         :raises HTTPException: Si les informations d'authentification sont incorrectes ou si le compte est verrouillé
         """
-        user = self.user_repo.get_user_by_email(email)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found") 
-        
-        if user.login_attempts >= MAX_ATTEMPTS:
-            user.login_attempts = 0
-            self.user_repo.db.commit()
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account locked. Please contact support.")
-        
-        if not verify_password(password, user.password):
-            user.login_attempts += 1
-            self.user_repo.db.commit()
-            attempts_left = MAX_ATTEMPTS - user.login_attempts
-            if attempts_left <= 0:
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Account locked. Please contact support.")
-            return {"message": "Invalid login or password", "attempts_left": attempts_left}
+        try:
+            user = self.user_repo.get_user_by_email(email)
+            if not user:
+                logfire.warn(f"Échec de la connexion : utilisateur avec email {email} non trouvé.")
+                raise InvalidCredentialsException()
 
-        user.login_attempts = 0
-        self.user_repo.db.commit()
-        return {"user": user, "attempts_left": MAX_ATTEMPTS}
+            if user.login_attempts >= MAX_ATTEMPTS:
+                self.user_repo.reset_login_attempts(user)
+                logfire.warn(f"Compte verrouillé pour l'utilisateur avec email {email}.")
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Veuillez modifier votre mot de passe")
+            
+            if not verify_password(password, user.password):
+                self.user_repo.increment_login_attempts(user)
+                attempts_left = MAX_ATTEMPTS - user.login_attempts
+                if attempts_left <= 0:
+                    logfire.warn(f"Trop de tentatives échouées pour l'utilisateur avec email {email}. Compte verrouillé.")
+                    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Veuillez modifier votre mot de passe.")
+                logfire.warn(f"Échec de la connexion : mot de passe incorrect pour l'utilisateur avec email {email}.")
+                raise InvalidCredentialsException()
+
+           
+            self.user_repo.reset_login_attempts(user)
+            logfire.info(f"Connexion réussie pour l'utilisateur avec email {email}.")
+            return user
+        except Exception as e:
+            logfire.error(f"Erreur lors de l'authentification pour l'utilisateur avec email {email}: {str(e)}")
+            raise
     
     

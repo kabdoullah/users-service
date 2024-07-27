@@ -48,7 +48,6 @@ class UserRepository:
         if not user:
             return None
 
- 
         user.password = new_password
         self.db.add(user)  
         self.db.commit()
@@ -59,6 +58,23 @@ class UserRepository:
         user.password = new_password
         self.db.commit()
         
+    def increment_login_attempts(self, user: User) -> None:
+        """
+        Incrémente les tentatives de connexion de l'utilisateur.
+        
+        :param user: L'utilisateur dont les tentatives de connexion doivent être incrémentées
+        """
+        user.login_attempts += 1
+        self.db.commit()
+
+    def reset_login_attempts(self, user: User) -> None:
+        """
+        Réinitialise les tentatives de connexion de l'utilisateur à zéro.
+        
+        :param user: L'utilisateur dont les tentatives de connexion doivent être réinitialisées
+        """
+        user.login_attempts = 0
+        self.db.commit()
   
         
     

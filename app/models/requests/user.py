@@ -22,7 +22,7 @@ class UserParticular(BaseModel):
     birth_day : date
     phone: str = Field(..., min_length=10, max_length=15)
     email: EmailStr
-    password: str = Field(..., min_length=4, max_length=50)
+    password: str = Field(..., min_length=6, max_length=50)
     
 
 

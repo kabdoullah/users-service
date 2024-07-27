@@ -8,21 +8,7 @@ class SessionCreate(BaseModel):
     expired_at: Optional[datetime] = None
     created_at: Optional[datetime] = None
 
-class LoginSuccessResponse(BaseModel):
-    message: str
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
-    attempts_left: int
-    
-    class ConfigDict:
-        from_attributes = True
 
-class LoginErrorResponse(BaseModel):
-    message: str
-    attempts_left: int
-    
-
-        
 class SessionData(BaseModel):
     user_id: UUID4
     

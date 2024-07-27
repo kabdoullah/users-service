@@ -3,8 +3,8 @@ from app.api.login import router as login_router
 from app.api.user import router as user_router
 from app.configuration.database import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
-from app.exceptions.custom_exception import (CustomBadGatewayException, EmailAlreadyUsedException, EmptyInputException, InactiveUserException, InvalidCredentialsException, InvalidPasswordException, InvalidTokenException, PhoneAlreadyUsedException, SameUsernamePasswordException, UserAlreadyExistsException, UserNotFoundException, UserNotValidException)
-from app.exceptions.exception_handler import (handle_custom_bad_gateway, handle_email_already_used, handle_empty_input, handle_inactive_user, handle_invalid_credentials, handle_invalid_password, handle_invalid_token, handle_phone_already_used, handle_same_username_password, handle_user_already_exists, handle_user_not_found, handle_user_not_valid)
+from app.exceptions.custom_exception import (CustomBadGatewayException, EmailAlreadyUsedException, EmptyInputException, InactiveUserException, InvalidCredentialsException, InvalidTokenException, PhoneAlreadyUsedException, SameUsernamePasswordException, UserAlreadyExistsException, UserNotFoundException, UserNotValidException)
+from app.exceptions.exception_handler import (handle_custom_bad_gateway, handle_email_already_used, handle_empty_input, handle_inactive_user, handle_invalid_credentials, handle_invalid_token, handle_phone_already_used, handle_same_username_password, handle_user_already_exists, handle_user_not_found, handle_user_not_valid)
 import logfire
 
 
@@ -39,7 +39,6 @@ logfire.info('Auth Microservice Started')
 app.add_exception_handler(InvalidCredentialsException, handle_invalid_credentials)
 app.add_exception_handler(UserNotFoundException, handle_user_not_found)
 app.add_exception_handler(UserAlreadyExistsException, handle_user_already_exists)
-app.add_exception_handler(InvalidPasswordException, handle_invalid_password)
 app.add_exception_handler(UserNotValidException, handle_user_not_valid)
 app.add_exception_handler(EmptyInputException, handle_empty_input)
 app.add_exception_handler(InvalidTokenException, handle_invalid_token)

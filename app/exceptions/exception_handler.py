@@ -2,7 +2,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from .custom_exception import (
     InvalidCredentialsException, UserNotFoundException, UserAlreadyExistsException,
-    InvalidPasswordException, UserNotValidException, EmptyInputException,
+    UserNotValidException, EmptyInputException,
     InvalidTokenException, CustomBadGatewayException, SameUsernamePasswordException,
     InactiveUserException, EmailAlreadyUsedException, PhoneAlreadyUsedException
 )
@@ -15,9 +15,6 @@ async def handle_user_not_found(req: Request, ex: UserNotFoundException):
     return JSONResponse(status_code=ex.status_code, content={"message": ex.detail})
 
 async def handle_user_already_exists(req: Request, ex: UserAlreadyExistsException):
-    return JSONResponse(status_code=ex.status_code, content={"message": ex.detail})
-
-async def handle_invalid_password(req: Request, ex: InvalidPasswordException):
     return JSONResponse(status_code=ex.status_code, content={"message": ex.detail})
 
 

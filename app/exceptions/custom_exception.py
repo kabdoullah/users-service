@@ -1,4 +1,5 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
+from typing_extensions import Annotated, Doc
 from fastapi import HTTPException
 
 class InvalidCredentialsException(HTTPException):
@@ -15,19 +16,19 @@ class UserNotFoundException(HTTPException):
     def __init__(self):
         super().__init__(status_code=404, detail="User not found")
 
-class InvalidPasswordException(HTTPException):
+class InvalidCredentialsException(HTTPException):
     """
     Exception levée lorsqu'un mot de passe est invalide.
     """
     def __init__(self):
-        super().__init__(status_code=401, detail="Invalid password")
+        super().__init__(status_code=401, detail="Invalid login or password")
 
 class InvalidOTPException(HTTPException):
     """
     Exception levée lorsqu'un OTP (One-Time Password) est invalide.
     """
     def __init__(self):
-        super().__init__(status_code=401, detail="Invalid OTP")
+        super().__init__(status_code=401, detail="Invalid OTP or OTP expired")
 
 class UserAlreadyExistsException(HTTPException):
     """
@@ -96,15 +97,14 @@ class PhoneAlreadyUsedException(HTTPException):
 class SessionNotFoundException(HTTPException):
     def __init__(self):
         super().__init__(status_code=404, detail="Session not found")
-
-class UserNotFoundException(HTTPException):
-    def __init__(self):
-        super().__init__(status_code=404, detail="User not found")
         
-class InvalidOTPException(HTTPException):
-    def __init__(self):
-        super().__init__(status_code=401, detail="Invalid OTP")
+class EmailNotRegisterException(HTTPException):
+    def __init__(self) -> None:
+        super().__init__(status_code=400, detail="Email not registered")
 
-class UserNotFoundException(HTTPException):
+class PasswordResetFailedException(HTTPException):
     def __init__(self):
-        super().__init__(status_code=404, detail="User not found")
+        super().__init__(status_code=400, detail="Password reset failed")
+        
+
+
