@@ -82,7 +82,7 @@ def refresh_token(refresh_token: str, userservice: UserService = Depends(UserSer
     return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
 
 @router.post("/password-reset-request")
-async def password_reset_request(data: PasswordResetRequest, background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
+async def password_reset_request(data:PasswordResetRequest, background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
     """
     Route pour demander une réinitialisation de mot de passe.
     
@@ -105,8 +105,8 @@ async def password_reset_request(data: PasswordResetRequest, background_tasks: B
     logfire.info(f"OTP envoyé à l'email {user.email}.")
     return {"message": "OTP sent to email"}
 
-@router.post("/password-reset-confirm")
-def password_reset_confirm(data: PasswordResetConfirm, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
+@router.post("/password-reset")
+def password_reset_confirm(data:PasswordResetConfirm, userservice: UserService = Depends(UserService)):
     """
     Route pour confirmer la réinitialisation de mot de passe avec l'OTP.
     
@@ -121,10 +121,7 @@ def password_reset_confirm(data: PasswordResetConfirm, otpservice: OTPService = 
     if not db_user:
         logfire.warn(f"Utilisateur non trouvé pour l'email {data.email}.")
         raise UserNotFoundException()
-    
-    if not otpservice.validate_otp(user_id=db_user.id, otp=data.otp):
-        logfire.warn(f"OTP invalide ou expiré pour l'utilisateur avec email {data.email}.")
-        raise InvalidOTPException()
+  
     
     user = userservice.reset_password(data.email, data.new_password)
     if not user:
