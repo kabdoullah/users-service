@@ -62,8 +62,8 @@ def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPServic
 # api pour verification d'otp utilisateur non connecté
 
 @router.post("/verify-register-otp")
-def verify_register_otp_route(email:str,data: OTPVerify, otpservice: OTPService = Depends(OTPService)):
-    if not otpservice.validate_register_otp(email=email,otp=data.otp_code):
+def verify_register_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPService)):
+    if not otpservice.validate_register_otp(email=data.email,otp=data.otp_code):
         raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
     return {"message": "OTP verified"}
 
