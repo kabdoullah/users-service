@@ -46,9 +46,8 @@ async def send_otp_route(email: str, background_tasks: BackgroundTasks, otpservi
     if db_user:
         raise EmailAlreadyUsedException()
     otp, expiry_time = generate_otp()
-    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=db_user.id)
-    await send_otp_email(db_user.email, otp, background_tasks)
-    
+    otpservice.store_register_otp(otp=otp, expiry_time=expiry_time, email=email)
+    await send_otp_email(email, otp, background_tasks)  
     return {"message": "OTP sent successfully"}
 
 @router.post("/verify-otp")

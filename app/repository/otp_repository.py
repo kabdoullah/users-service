@@ -25,6 +25,17 @@ class OTPRepository:
         current_time = int(expiry_time.timestamp())
         self.redis.setex(str(user_id), current_time, otp)
 
+    def store_register_otp(self, email: str, otp: str, expiry_time: datetime):
+        """
+        Stocke un OTP (One Time Password) pour un utilisateur spécifique dans Redis avec un temps d'expiration.
+
+        :param email: L'identifiant unique de l'utilisateur.
+        :param otp: Le code OTP à stocker.
+        :param expiry_time: La durée après laquelle l'OTP expirera.
+        """
+        current_time = int(expiry_time.timestamp())
+        self.redis.setex(email, current_time, otp)
+
     def verify_otp(self, user_id: UUID, otp: str) -> bool:
         """
         Vérifie si un OTP fourni correspond à celui stocké pour un utilisateur spécifique.

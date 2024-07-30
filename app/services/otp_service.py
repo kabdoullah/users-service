@@ -42,4 +42,15 @@ class OTPService:
         if not self.otp_repo.verify_otp(user_id, otp):
             raise InvalidOTPException()
         return True
+    # fonction de stockage du otp avec email
+    def store_register_otp(self, email: str, otp: str, expiry_time: datetime):
+        """
+        Génère et stocke un OTP pour un utilisateur(email) spécifique.
+
+        :param email: Identifiant unique de l'utilisateur
+        :param otp: Le code OTP à stocker
+        :param expiry_time: La durée après laquelle l'OTP expirera
+        """
+        
+        return self.otp_repo.store_register_otp(email, otp, expiry_time)
 
