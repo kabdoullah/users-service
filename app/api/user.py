@@ -25,12 +25,7 @@ async def register_user(user_data: UserParticular, background_tasks: BackgroundT
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise EmailAlreadyUsedException()
-    
-    otp, expiry_time = generate_otp()
     new_user = userservice.create_particular(user_data)
-    
-    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
-    await send_otp_email(new_user.email, otp, background_tasks)
     
     return new_user
 
@@ -40,15 +35,21 @@ async def register_professionel(user_data: UserProfessional,  background_tasks: 
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise EmailAlreadyUsedException()
-    
-    otp, expiry_time = generate_otp()
-    print("otp", otp)
-    
+     
     new_user = userservice.create_professional(user_data)
-    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
-    await send_otp_email(new_user.email, otp, background_tasks)
     
     return new_user
+
+@router.post("/send-otp")
+async def send_otp_route(email: str, background_tasks: BackgroundTasks, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
+    db_user = userservice.get_user_by_email(email)
+    if db_user:
+        raise EmailAlreadyUsedException()
+    otp, expiry_time = generate_otp()
+    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=db_user.id)
+    await send_otp_email(db_user.email, otp, background_tasks)
+    
+    return {"message": "OTP sent successfully"}
 
 @router.post("/verify-otp")
 def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
