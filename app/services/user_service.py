@@ -122,10 +122,16 @@ class UserService:
         :return: Utilisateur avec le mot de passe réinitialisé
         :raises UserNotFoundException: Si l'utilisateur n'est pas trouvé
         """
-        user = self.user_repo.reset_password(email, hash_password(new_password))
-        if not user:
-            raise UserNotFoundException()
-        return user
+        try:
+            user = self.user_repo.reset_password(email, hash_password(new_password))
+            if not user:
+                raise UserNotFoundException()
+            user.is_active = True
+            self.user_repo.reset_login_attempts(user)
+            return user
+        except Exception as e:
+            logfire.error(f"Erreur lors de la réinitialisation du mot de passe pour l'utilisateur avec email {email}: {str(e)}")
+            raise
 
     def update_password(self, user: User, new_password: str) -> User:
         """
@@ -155,7 +161,6 @@ class UserService:
                 raise InvalidCredentialsException()
 
             if user.login_attempts >= MAX_ATTEMPTS:
-                self.user_repo.reset_login_attempts(user)
                 logfire.warn(f"Compte verrouillé pour l'utilisateur avec email {email}.")
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Veuillez modifier votre mot de passe")
             
@@ -163,6 +168,7 @@ class UserService:
                 self.user_repo.increment_login_attempts(user)
                 attempts_left = MAX_ATTEMPTS - user.login_attempts
                 if attempts_left <= 0:
+                    user.is_active = False
                     logfire.warn(f"Trop de tentatives échouées pour l'utilisateur avec email {email}. Compte verrouillé.")
                     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Veuillez modifier votre mot de passe.")
                 logfire.warn(f"Échec de la connexion : mot de passe incorrect pour l'utilisateur avec email {email}.")

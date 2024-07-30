@@ -15,6 +15,7 @@ class AuthSettings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 1440
+    API_V1_STR: str = "/api/v1"
     
     model_config = SettingsConfigDict(
         env_file=".env", env_ignore_empty=True, extra="ignore"
@@ -33,7 +34,6 @@ class ServerSettings(BaseSettings):
 
 
 class DBSettings(BaseSettings):
-    
     DB_HOST: str 
     DB_PORT: int 
     DB_NAME: str 

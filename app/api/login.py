@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jwt import InvalidTokenError
 import logfire
 from app.configuration.config import AuthSettings
-from app.exceptions.custom_exception import EmailNotRegisterException, InvalidOTPException, InvalidTokenException, PasswordResetFailedException, UserNotFoundException
+from app.exceptions.custom_exception import EmailNotRegisterException, InactiveUserException, InvalidOTPException, InvalidTokenException, PasswordResetFailedException, UserNotFoundException
 from app.models.requests.user import PasswordResetConfirm, PasswordResetRequest
 from app.security.security import create_access_token, create_refresh_token, decode_access_token, generate_otp
 from app.services.otp_service import OTPService
@@ -16,7 +16,7 @@ from app.utils.email import send_otp_email
 
 auth_settings = AuthSettings()
 
-router = APIRouter()
+router = APIRouter(tags=["users"])
 
 @router.post("/login", response_model=Token)
 def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  user_service: UserService = Depends(UserService), session_service: SessionService = Depends(SessionService)):
@@ -35,6 +35,10 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  user_serv
 
     try:
         user = user_service.authenticate_user(email=form_data.username, password=form_data.password)
+        
+        if not user.is_active:
+            logfire.warn(f"Utilisateur inactif avec email {form_data.username}.")
+            raise InactiveUserException()
         
         access_token = create_access_token(data={"sub": str(user.id)}, expires_delta=access_token_expires)
         refresh_token = create_refresh_token(data={"sub": str(user.id)}, expires_delta=refresh_token_expires)
