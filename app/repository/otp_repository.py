@@ -50,3 +50,19 @@ class OTPRepository:
             self.redis.delete(str(user_id))
             return True
         return False
+    
+    # verifie l'otp pour un utilisateur non connecté
+    def verify_register_otp(self, email: str, otp: str) -> bool:
+        """
+        Vérifie si un OTP fourni correspond à celui stocké pour un utilisateur spécifique.
+        Si l'OTP est correct, il est supprimé de Redis.
+
+        :param email: L'identifiant unique de l'utilisateur non connecté.
+        :param otp: Le code OTP à vérifier.
+        :return: True si l'OTP est correct, sinon False.
+        """
+        stored_otp = self.redis.get(email)
+        if stored_otp and stored_otp.decode('utf-8') == otp:
+            self.redis.delete(email)
+            return True
+        return False

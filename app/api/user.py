@@ -47,7 +47,7 @@ async def send_otp_route(email: str, background_tasks: BackgroundTasks, otpservi
         raise EmailAlreadyUsedException()
     otp, expiry_time = generate_otp()
     otpservice.store_register_otp(otp=otp, expiry_time=expiry_time, email=email)
-    await send_otp_email(email, otp, background_tasks)  
+    await send_otp_email(email, otp, background_tasks)
     return {"message": "OTP sent successfully"}
 
 @router.post("/verify-otp")
@@ -56,6 +56,14 @@ def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPServic
     if not db_user:
         raise UserNotFoundException()
     if not otpservice.validate_otp(user_id=db_user.id,otp=data.otp_code):
+        raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
+    return {"message": "OTP verified"}
+
+# api pour verification d'otp utilisateur non connecté
+
+@router.post("/verify-register-otp")
+def verify_register_otp_route(email:str,data: OTPVerify, otpservice: OTPService = Depends(OTPService)):
+    if not otpservice.validate_register_otp(email=email,otp=data.otp_code):
         raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
     return {"message": "OTP verified"}
 

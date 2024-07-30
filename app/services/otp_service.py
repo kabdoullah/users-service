@@ -42,6 +42,20 @@ class OTPService:
         if not self.otp_repo.verify_otp(user_id, otp):
             raise InvalidOTPException()
         return True
+    # fonction pour valider l'otp pour un utilisateur pas encore connecté
+    def validate_register_otp(self, email: str, otp: str) -> bool:
+        """
+        Valide un OTP pour un utilisateur spécifique.
+
+        :param user_id: Identifiant unique de l'utilisateur
+        :param otp: Le code OTP à vérifier
+        :return: True si l'OTP est valide, sinon False
+        :raises InvalidOTPException: Si l'OTP est invalide
+        """
+        if not self.otp_repo.verify_register_otp(email, otp):
+            raise InvalidOTPException()
+        return True
+    
     # fonction de stockage du otp avec email
     def store_register_otp(self, email: str, otp: str, expiry_time: datetime):
         """
