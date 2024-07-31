@@ -30,6 +30,7 @@ class UserProfessional(BaseModel):
     last_name: str = Field(..., min_length=2, max_length=50)
     email: EmailStr
     number_fix : str = Field(..., min_length=2, max_length=50)
+    phone: str = Field(..., min_length=10, max_length=15)
     password: str = Field(..., min_length=4, max_length=50)
     company : str = Field(...,min_length=3,max_length=50)
     country : str = Field(...,min_length=3,max_length=50)
