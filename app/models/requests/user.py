@@ -33,6 +33,7 @@ class UserProfessional(BaseModel):
     phone: str = Field(..., min_length=10, max_length=15)
     password: str = Field(..., min_length=4, max_length=50)
     company : str = Field(...,min_length=3,max_length=50)
+    company_type : str = Field(...,min_length=3,max_length=50)
     country : str = Field(...,min_length=3,max_length=50)
     professional_category : str = Field(...,min_length=3,max_length=50)
     sub_category : str = Field(...,min_length=3,max_length=50)
@@ -56,6 +57,7 @@ class UserResponse(BaseModel):
     is_active: bool
     number_fix: str | None = None
     company: str | None = None
+    company_type: str | None = None
     country: str | None = None
     professional_category: str | None = None
     sub_category: str | None = None
