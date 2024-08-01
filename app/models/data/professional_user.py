@@ -7,7 +7,9 @@ class ProfessionalUser(User):
 
     id = Column(UUIDType(as_uuid=True), ForeignKey('users.id'), primary_key=True)
     number_fix = Column(String, nullable=True)  # Numéro fixe
+    phone = Column(String, nullable=True)  # Numéro fixe
     company = Column(String)
+    company_type = Column(String)
     country = Column(String)
     professional_category = Column(String)
     sub_category = Column(String, nullable=True)
