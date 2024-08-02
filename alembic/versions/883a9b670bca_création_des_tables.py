@@ -1,8 +1,8 @@
 """Création des tables
 
-Revision ID: 63d9f6a73de2
-Revises: 8331805a694a
-Create Date: 2024-08-02 10:52:13.888136
+Revision ID: 883a9b670bca
+Revises: 
+Create Date: 2024-08-02 16:50:03.956810
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '63d9f6a73de2'
-down_revision: Union[str, None] = '8331805a694a'
+revision: str = '883a9b670bca'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,16 +25,16 @@ def upgrade() -> None:
     op.drop_index('ix_sessions_refresh_token', table_name='sessions')
     op.drop_index('ix_sessions_user_id', table_name='sessions')
     op.drop_table('sessions')
+    op.drop_table('sub_categories')
+    op.drop_table('profile_rights')
     op.drop_index('ix_rights_id', table_name='rights')
     op.drop_table('rights')
-    op.drop_table('profile_rights')
     op.drop_index('ix_users_email', table_name='users')
     op.drop_index('ix_users_first_name', table_name='users')
     op.drop_index('ix_users_id', table_name='users')
     op.drop_index('ix_users_last_name', table_name='users')
     op.drop_index('ix_users_reference', table_name='users')
     op.drop_table('users')
-    op.drop_table('sub_categories')
     op.drop_table('categories')
     op.drop_index('ix_profiles_id', table_name='profiles')
     op.drop_table('profiles')
@@ -57,13 +57,6 @@ def downgrade() -> None:
     sa.Column('name', sa.VARCHAR(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
-    )
-    op.create_table('sub_categories',
-    sa.Column('id', sa.NUMERIC(), nullable=False),
-    sa.Column('name', sa.VARCHAR(), nullable=False),
-    sa.Column('category_id', sa.NUMERIC(), nullable=True),
-    sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
-    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
     sa.Column('id', sa.NUMERIC(), nullable=False),
@@ -99,13 +92,6 @@ def downgrade() -> None:
     op.create_index('ix_users_id', 'users', ['id'], unique=False)
     op.create_index('ix_users_first_name', 'users', ['first_name'], unique=False)
     op.create_index('ix_users_email', 'users', ['email'], unique=1)
-    op.create_table('profile_rights',
-    sa.Column('profile_id', sa.NUMERIC(), nullable=False),
-    sa.Column('right_id', sa.NUMERIC(), nullable=False),
-    sa.ForeignKeyConstraint(['profile_id'], ['profiles.id'], ),
-    sa.ForeignKeyConstraint(['right_id'], ['rights.id'], ),
-    sa.PrimaryKeyConstraint('profile_id', 'right_id')
-    )
     op.create_table('rights',
     sa.Column('id', sa.NUMERIC(), nullable=False),
     sa.Column('name', sa.VARCHAR(), nullable=False),
@@ -115,6 +101,20 @@ def downgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index('ix_rights_id', 'rights', ['id'], unique=False)
+    op.create_table('profile_rights',
+    sa.Column('profile_id', sa.NUMERIC(), nullable=False),
+    sa.Column('right_id', sa.NUMERIC(), nullable=False),
+    sa.ForeignKeyConstraint(['profile_id'], ['profiles.id'], ),
+    sa.ForeignKeyConstraint(['right_id'], ['rights.id'], ),
+    sa.PrimaryKeyConstraint('profile_id', 'right_id')
+    )
+    op.create_table('sub_categories',
+    sa.Column('id', sa.NUMERIC(), nullable=False),
+    sa.Column('name', sa.VARCHAR(), nullable=False),
+    sa.Column('category_id', sa.NUMERIC(), nullable=True),
+    sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('sessions',
     sa.Column('id', sa.NUMERIC(), nullable=False),
     sa.Column('user_id', sa.NUMERIC(), nullable=True),

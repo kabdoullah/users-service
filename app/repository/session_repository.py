@@ -1,71 +1,45 @@
+from typing import List
 from sqlalchemy.orm import Session as SQLAlchemySession
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from uuid import UUID
-from datetime import datetime, timezone
+import logfire
 from app.models.data.session import Session as SessionModel
 from app.models.requests.session import SessionCreate
 from app.configuration.database import get_db
 
+
 class SessionRepository:
     def __init__(self, db: SQLAlchemySession = Depends(get_db)):
-        """
-        Initialise le repository avec une session SQLAlchemy.
-        
-        :param db: Session SQLAlchemy
-        """
         self.db = db
 
-    def create_session(self, session: SessionCreate):
-        """
-        Crée une nouvelle session et la stocke dans la base de données.
-        
-        :param session: Données de la session à créer
-        :return: La session créée
-        """
-        db_session = SessionModel(
-            user_id=session.user_id,
-            access_token=session.token,
-            refresh_token=session.refresh_token,
-            expired_at=session.expired_at,
-            
-        )
+    def create_session(self, session: SessionCreate) -> SessionModel:
+        db_session = SessionModel(session.model_dump())
         self.db.add(db_session)
         self.db.commit()
         self.db.refresh(db_session)
+        logfire.info(f"Session créée avec succès : {db_session.id}")
         return db_session
 
-    def get_session(self, session_id: UUID):
-        """
-        Récupère une session par son identifiant.
-        
-        :param session_id: Identifiant de la session
-        :return: La session trouvée
-        :raises HTTPException: Si la session n'est pas trouvée
-        """
-        db_session = self.db.query(SessionModel).filter(SessionModel.id == session_id).first()
+    def get_session(self, session_id: UUID) -> SessionModel | None:
+        db_session = self.db.query(SessionModel).filter(
+            SessionModel.id == session_id).first()
         if not db_session:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Session not found")
+            logfire.warn(f"Session non trouvée avec l'ID : {session_id}")
         return db_session
 
-    def delete_session(self, session_id: UUID):
-        """
-        Supprime une session par son identifiant.
-        
-        :param session_id: Identifiant de la session
-        :return: True si la session est supprimée, sinon False
-        """
+    def delete_session(self, session_id: UUID) -> bool:
         db_session = self.get_session(session_id)
         if db_session:
             self.db.delete(db_session)
             self.db.commit()
+            logfire.info(f"Session supprimée avec succès : {session_id}")
             return True
+        logfire.warn(f"Échec de la suppression de la session : {session_id}")
         return False
 
-    def get_sessions_by_user(self, user_id: UUID):
-        """
-        Récupère toutes les sessions pour un utilisateur donné.
-        
-        :param user_id: Identifiant de l'utilisateur
-        :return: Liste des sessions de l'utilisateur
-        """
-        return self.db.query(SessionModel).filter(SessionModel.user_id == user_id).all()
+    def get_sessions_by_user(self, user_id: UUID) -> List[SessionModel]:
+        sessions = self.db.query(SessionModel).filter(
+            SessionModel.user_id == user_id).all()
+        logfire.info(
+            f"{len(sessions)} sessions récupérées pour l'utilisateur : {user_id}")
+        return sessions

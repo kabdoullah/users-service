@@ -9,9 +9,7 @@ redis_settings = RedisSettings()
 
 
 engine = create_engine(db_settings.DB_URL, connect_args={"check_same_thread": False})
-
 SessionFactory = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
 
@@ -27,6 +25,10 @@ def get_db():
         db.close()
 
 
+def create_db_and_tables():
+    Base.metadata.create_all(bind=engine)
+
+
 # Initialiser un client Redis avec les configurations
 redis_client = Redis(
     host=redis_settings.REDIS_HOST,
@@ -34,6 +36,7 @@ redis_client = Redis(
     db=redis_settings.REDIS_DB,
     # password=redis_settings.REDIS_PASSWORD
 )
+
 
 def get_redis():
     """
