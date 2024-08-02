@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
-from datetime import datetime, timedelta, timezone
-from fastapi import Depends, HTTPException, status
+from datetime import datetime, timezone
+from fastapi import Depends
 from app.models.requests.session import SessionCreate
 from app.models.data.session import Session as SessionModel
 from app.repository.session_repository import SessionRepository
@@ -70,7 +70,7 @@ class SessionService:
         """
         return self.session_repo.get_sessions_by_user(user_id)
 
-    def validate_token(self, user_id: UUID, token: str) -> bool:
+    def validate_token(self, user_id: UUID, access_token: str) -> bool:
         """
         Valide le token de l'utilisateur.
         
@@ -80,7 +80,7 @@ class SessionService:
         """
         sessions = self.session_repo.get_sessions_by_user(user_id)
         for session in sessions:
-            if session.token == token and session.expired_at > datetime.now(timezone.utc):
+            if session.access_token == access_token and session.expires_at > datetime.now(timezone.utc):
                 return True
         return False
 

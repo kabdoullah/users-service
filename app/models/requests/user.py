@@ -24,17 +24,18 @@ class UserParticular(BaseModel):
     password: str = Field(..., min_length=6, max_length=50)
     
 
-
-class UserProfessional(BaseModel):
+class UserEnterprise(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=50)
     last_name: str = Field(..., min_length=2, max_length=50)
     email: EmailStr
     number_fix : str = Field(..., min_length=2, max_length=50)
+    phone: str = Field(..., min_length=10, max_length=15)
     password: str = Field(..., min_length=4, max_length=50)
     company : str = Field(...,min_length=3,max_length=50)
+    company_type : str = Field(...,min_length=3,max_length=50)
     country : str = Field(...,min_length=3,max_length=50)
-    professional_category : str = Field(...,min_length=3,max_length=50)
-    sub_category : str = Field(...,min_length=3,max_length=50)
+    category_id : str = Field(...,min_length=3,max_length=50)
+    sub_category_id : str = Field(...,min_length=3,max_length=50)
     website : str = Field(...,min_length=3,max_length=50)
 
     @field_validator('country')
@@ -55,7 +56,8 @@ class UserResponse(BaseModel):
     is_active: bool
     number_fix: str | None = None
     company: str | None = None
+    company_type: str | None = None
     country: str | None = None
-    professional_category: str | None = None
+    category_id: str | None = None
     sub_category: str | None = None
     website: str | None = None

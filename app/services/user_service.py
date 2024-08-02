@@ -1,11 +1,11 @@
 from typing import Optional
 from fastapi import Depends, HTTPException, status
 import logfire
-from pydantic import UUID4
+from uuid import UUID
 from app.configuration.config import AuthSettings
 from app.repository.user_repository import UserRepository
 from app.models.data.user import User
-from app.models.requests.user import UserParticular, UserProfessional
+from app.models.requests.user import UserParticular, UserEnterprise
 from app.exceptions.custom_exception import InvalidCredentialsException, UserNotFoundException, UserAlreadyExistsException
 from app.security.security import hash_password, verify_password
 
@@ -33,7 +33,7 @@ class UserService:
         user_data.password = hashed_password
         return self.user_repo.create_particular(user_data)
     
-    def create_professional(self, user_data: UserProfessional) -> User:
+    def create_professional(self, user_data: UserEnterprise) -> User:
         """
         Crée un nouvel utilisateur.
         
@@ -49,7 +49,7 @@ class UserService:
         user_data.password = hashed_password
         return self.user_repo.create_professional(user_data)
 
-    def update_user(self, user_id: UUID4, user_data: UserParticular) -> User:
+    def update_user(self, user_id: UUID, user_data: UserParticular) -> User:
         """
         Met à jour un utilisateur existant.
         
@@ -62,13 +62,13 @@ class UserService:
         if not user:
             raise UserNotFoundException()
 
-        for key, value in user_data.dict().items():
+        for key, value in user_data.model_dump().items():
             setattr(user, key, value)
 
         self.user_repo.update_user(user)
         return user
 
-    def delete_user(self, user_id: UUID4) -> bool:
+    def delete_user(self, user_id: UUID) -> bool:
         """
         Supprime un utilisateur.
         
@@ -100,7 +100,7 @@ class UserService:
         """
         return self.user_repo.get_user_by_email(email)
 
-    def get_user_by_id(self, user_id: UUID4) -> Optional[User]:
+    def get_user_by_id(self, user_id: UUID) -> Optional[User]:
         """
         Récupère un utilisateur par son identifiant.
         

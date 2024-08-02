@@ -4,7 +4,7 @@ from app.dependencies.auth import get_current_active_user
 from app.exceptions.custom_exception import EmailAlreadyUsedException, UserNotFoundException
 from app.models.data.user import User
 from app.models.requests.otp import OTPVerify
-from app.models.requests.user import UserParticular, UserProfessional, UserResponse
+from app.models.requests.user import UserParticular, UserEnterprise, UserResponse
 from app.security.security import generate_otp
 from app.services.otp_service import OTPService
 from app.services.user_service import UserService
@@ -16,52 +16,69 @@ router = APIRouter()
 # Générer la liste des pays
 COUNTRIES = [country.name for country in pycountry.countries]
 
+
 @router.get("/countries", response_model=List[str])
 def get_countries():
     return COUNTRIES
+
 
 @router.post("/register/particular", response_model=UserResponse)
 async def register_user(user_data: UserParticular, background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise EmailAlreadyUsedException()
-    
-    otp, expiry_time = generate_otp()
     new_user = userservice.create_particular(user_data)
-    
-    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
-    await send_otp_email(new_user.email, otp, background_tasks)
-    
+
     return new_user
 
 
 @router.post("/register/professionnal", response_model=UserResponse)
-async def register_professionel(user_data: UserProfessional,  background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
+async def register_professionel(user_data: UserEnterprise,  background_tasks: BackgroundTasks, userservice: UserService = Depends(UserService), otpservice: OTPService = Depends(OTPService)):
     db_user = userservice.get_user_by_email(user_data.email)
     if db_user:
         raise EmailAlreadyUsedException()
-    
-    otp, expiry_time = generate_otp()
-    print("otp", otp)
-    
+
     new_user = userservice.create_professional(user_data)
-    otpservice.store_otp(otp=otp, expiry_time=expiry_time, user_id=new_user.id)
-    await send_otp_email(new_user.email, otp, background_tasks)
-    
+
     return new_user
+
+
+@router.post("/send-otp")
+async def send_otp_route(email: str, background_tasks: BackgroundTasks, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
+    db_user = userservice.get_user_by_email(email)
+    if db_user:
+        raise EmailAlreadyUsedException()
+    otp, expiry_time = generate_otp()
+    otpservice.store_register_otp(
+        otp=otp, expiry_time=expiry_time, email=email)
+    await send_otp_email(email, otp, background_tasks)
+    return {"message": "OTP sent successfully"}
+
 
 @router.post("/verify-otp")
 def verify_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPService), userservice: UserService = Depends(UserService)):
     db_user = userservice.get_user_by_email(data.email)
     if not db_user:
         raise UserNotFoundException()
-    if not otpservice.validate_otp(user_id=db_user.id,otp=data.otp_code):
-        raise HTTPException(status_code=400, detail="Invalid OTP or OTP expired")
+    if not otpservice.validate_otp(user_id=db_user.id, otp=data.otp_code):
+        raise HTTPException(
+            status_code=400, detail="Invalid OTP or OTP expired")
     return {"message": "OTP verified"}
+
+# api pour verification d'otp utilisateur non connecté
+
+
+@router.post("/verify-register-otp")
+def verify_register_otp_route(data: OTPVerify, otpservice: OTPService = Depends(OTPService)):
+    if not otpservice.validate_register_otp(email=data.email, otp=data.otp_code):
+        raise HTTPException(
+            status_code=400, detail="Invalid OTP or OTP expired")
+    return {"message": "OTP verified"}
+
 
 @router.get("/me", response_model=UserResponse)
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)]):
+        current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
 
 # @router.get("/users/", response_model=List[User])

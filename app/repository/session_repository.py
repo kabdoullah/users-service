@@ -24,9 +24,10 @@ class SessionRepository:
         """
         db_session = SessionModel(
             user_id=session.user_id,
-            token=session.token,
+            access_token=session.token,
+            refresh_token=session.refresh_token,
             expired_at=session.expired_at,
-            created_at=datetime.now(timezone.utc)
+            
         )
         self.db.add(db_session)
         self.db.commit()

@@ -3,9 +3,8 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from app.configuration.database import get_db
 from app.models.data.user import User
-from app.models.data.particular_user import ParticularUser
-from app.models.data.professional_user import ProfessionalUser
-from app.models.requests.user import UserParticular, UserProfessional
+
+from app.models.requests.user import UserParticular, UserEnterprise
 
 
 class UserRepository:
@@ -14,20 +13,20 @@ class UserRepository:
  
  
     def create_particular(self, user: UserParticular):
-        db_user = ParticularUser(**user.model_dump())
+        db_user = User(**user.model_dump())
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
         return db_user
     
-    def create_professional(self, user: UserProfessional):
-        db_user = ProfessionalUser(**user.model_dump())
+    def create_professional(self, user: UserEnterprise):
+        db_user = User(**user.model_dump())
         self.db.add(db_user)
         self.db.commit()
         self.db.refresh(db_user)
         return db_user
     
-    def update_user(self, user:  UserParticular | UserProfessional):
+    def update_user(self, user:  UserParticular):
         pass
 
     def delete_user(self, user_id: int):
@@ -65,6 +64,7 @@ class UserRepository:
         :param user: L'utilisateur dont les tentatives de connexion doivent être incrémentées
         """
         user.login_attempts += 1
+        user.last_login_attempt = datetime.now(timezone.utc)
         self.db.commit()
 
     def reset_login_attempts(self, user: User) -> None:
@@ -74,6 +74,7 @@ class UserRepository:
         :param user: L'utilisateur dont les tentatives de connexion doivent être réinitialisées
         """
         user.login_attempts = 0
+        user.last_login = datetime.now(timezone.utc)
         self.db.commit()
   
         

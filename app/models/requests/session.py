@@ -4,9 +4,10 @@ from typing import Optional
 
 class SessionCreate(BaseModel):
     user_id: UUID4
-    token: str
+    access_token: str
+    refresh_token: str
     expired_at: Optional[datetime] = None
-    created_at: Optional[datetime] = None
+    
 
 
 class SessionData(BaseModel):
