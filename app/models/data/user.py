@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 import enum
 
 
-class GenderEnum(enum.Enum):
+class GenderEnum(str, enum.Enum):
     male = "masculin"
     female = "féminin"
 
@@ -24,15 +24,18 @@ class User(Base):
     profile_id = Column(UUIDType(as_uuid=True), ForeignKey('profiles.id'))
     profile_photo = Column(String, nullable=True)
     birth_day = Column(Date, nullable=True)
+    birth_place = Column(String, nullable=True)
     number_fix = Column(String, nullable=True)
     company = Column(String, nullable=True)
     country = Column(String, nullable=True)
-    category_id = Column(UUIDType(as_uuid=True), ForeignKey('categories.id'))
+    category_id = Column(UUIDType(as_uuid=True),
+                         ForeignKey('categories.id'), nullable=True)
     sub_category_id = Column(UUIDType(as_uuid=True),
                              ForeignKey('sub_categories.id'))
     website = Column(String, nullable=True)
     password = Column(String)
-    gender = Column(Enum(GenderEnum), nullable=False)
+    type = Column(String, nullable=False)
+    gender = Column(Enum(GenderEnum), nullable=True, default=GenderEnum.male)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

@@ -56,7 +56,7 @@ class CategoryService:
         category = self.category_repo.delete(category_id)
         if not category:
             logfire.warn(f"Catégorie non trouvée : {category_id}")
-            raise CategoryNotFoundException()
+            return False
         logfire.info(f"Catégorie supprimée : {category_id}")
         return category
 

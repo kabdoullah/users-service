@@ -40,17 +40,13 @@ class SubCategoryService:
         """
         Met à jour une sous-catégorie existante.
         """
-        subcategory = self.subcategory_repo.get_subcategory_by_id(
-            subcategory_id)
-        if not subcategory:
-            logfire.warn(f"Sous-catégorie non trouvée : {subcategory_id}")
-            raise SubCategoryNotFoundException()
-
-        for key, value in subcategory_data.dict(exclude_unset=True).items():
-            setattr(subcategory, key, value)
-
         try:
-            self.subcategory_repo.update_subcategory(subcategory)
+            subcategory = self.subcategory_repo.update_subcategory(
+                subcategory=subcategory_data, subcategory_id=subcategory_id)
+            if not subcategory:
+                logfire.warn(f"Sous-catégorie non trouvée : {subcategory_id}")
+                raise SubCategoryNotFoundException()
+
             logfire.info(f"Sous-catégorie mise à jour : {subcategory_id}")
             return subcategory
         except Exception as e:
@@ -62,13 +58,11 @@ class SubCategoryService:
         """
         Supprime une sous-catégorie.
         """
-        subcategory = self.subcategory_repo.get_subcategory_by_id(
+        category_service = self.subcategory_repo.delete_subcategory(
             subcategory_id)
-        if not subcategory:
+        if not category_service:
             logfire.warn(f"Sous-catégorie non trouvée : {subcategory_id}")
             raise SubCategoryNotFoundException()
-
-        self.subcategory_repo.delete_subcategory(subcategory_id)
         logfire.info(f"Sous-catégorie supprimée : {subcategory_id}")
         return True
 

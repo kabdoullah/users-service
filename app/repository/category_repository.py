@@ -22,11 +22,12 @@ class CategoryRepository:
             logfire.warn(f"Catégorie non trouvée avec l'ID : {id}")
         return category
 
-    def get_by_name(self, name: str):
+    def get_by_name(self, name: str) -> Category | None:
         category = self.db.query(Category).filter(
             Category.name == name).first()
         if not category:
             logfire.warn(f"Catégorie non trouvée avec le nom : {name}")
+            return None
         return category
 
     def create(self, category: CategoryCreate):

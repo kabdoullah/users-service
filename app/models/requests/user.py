@@ -1,6 +1,9 @@
-from datetime import date
+from datetime import date, datetime
+from uuid import UUID
 from pydantic import UUID4, BaseModel, EmailStr, Field, field_validator
 import pycountry
+
+from app.models.data.user import GenderEnum
 
 
 # Générer la liste des pays
@@ -47,56 +50,55 @@ class UserEnterprise(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: UUID4
+    id: UUID
+    reference: str
     first_name: str
     last_name: str
     email: str
-    phone: str | None = None
-    type: str
-    is_active: bool
+    phone: str
+    profile_id: UUID
+    profile_photo: str | None = None
+    birth_day: date | None = None
+    birth_place: str | None = None
     number_fix: str | None = None
     company: str | None = None
-    company_type: str | None = None
     country: str | None = None
-    category_id: str | None = None
-    sub_category: str | None = None
+    category_id: UUID | None = None
+    sub_category_id: UUID | None = None
     website: str | None = None
+    gender: GenderEnum
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
 
-# class UserBase(BaseModel):
-#     first_name: str
-#     last_name: str
-#     email: EmailStr
-#     phone: str | None
-#     profile_photo: str | None
-#     birth_day: date | None
-#     number_fix: str | None
-#     company: str | None
-#     country: str | None
-#     website: str | None
-#     gender: str
-#     is_active: bool
-
-#     @field_validator('country')
-#     def validate_country(cls, value: str) -> str:
-#         if value not in COUNTRIES:
-#             raise ValueError('Invalid country')
-#         return value
+class UserBase(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: str | None
+    profile_photo: str | None
+    birth_day: date | None
+    birth_place: str | None
+    type: str
+    gender: GenderEnum
 
 
-# class UserCreate(UserBase):
-#     password: str
+class UserCreate(UserBase):
+    reference: str | None = None
+    password: str
 
 
-# class UserUpdate(UserBase):
-#     password: str | None
+class UserUpdate(UserBase):
+    password: str | None
 
 
-# class UserInDB(UserBase):
-#     id: UUID
-#     reference: str
-#     created_at: datetime
-#     updated_at: datetime
+class UserInDB(UserBase):
+    id: UUID
+    reference: str
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
 
-#     class ConfigDict:
-#         from_attributes = True
+    class ConfigDict:
+        from_attributes = True
